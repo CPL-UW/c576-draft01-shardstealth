@@ -9,6 +9,7 @@ public class FoodItemPurchase : MonoBehaviour
     public TextMeshProUGUI foodName;
     public TextMeshProUGUI foodQuantity;
     public TextMeshProUGUI purchaseQuantityText;
+    //public TextMeshProUGUI pricePerItem;
     public Slider slider;
     // Start is called before the first frame update
     void Start()
@@ -16,10 +17,11 @@ public class FoodItemPurchase : MonoBehaviour
         
     }
 
-    public void setStartingData(string name, int minValue, int maxValue)
+    public void setStartingData(string name, int minValue, int maxValue, float price)
     {
         foodName.text += name;
         foodQuantity.text += maxValue.ToString();
+        //pricePerItem.text += pricePerItem.ToString();
         slider.minValue = minValue;
         slider.maxValue = maxValue;
         purchaseQuantityText.text = minValue.ToString();

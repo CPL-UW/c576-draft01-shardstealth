@@ -34,11 +34,18 @@ public struct RecommendedDietInfo
     public int[] men;
 }
 
-public struct DailyFoodItem
+public struct WeeklyFoodItem
 {
     public FoodItem foodItem;
     public int minPurchase;
     public int maxPurchase;
+}
+
+public struct Contract
+{
+    public int people;
+    public int weeks;
+    public int payment;
 }
 
 public class GameManager : MonoBehaviour
@@ -47,7 +54,8 @@ public class GameManager : MonoBehaviour
     struct GameData
     {
         public float money;
-        public DailyFoodItem[] dailyFood;
+        public WeeklyFoodItem[] weeklyFood;
+        public Contract[] weeklyContracts;
     }
 
     public static GameManager instance;
@@ -75,7 +83,7 @@ public class GameManager : MonoBehaviour
         foodData = UnityEngine.JsonUtility.FromJson<FoodData>(foodDataJson.text);
         gameData = new GameData();
         random = new System.Random();
-        AdvanceDay();
+        AdvanceWeek();
         Debug.Log(foodData.FoodTypes[0].items.Length);
     }
 
@@ -84,22 +92,36 @@ public class GameManager : MonoBehaviour
         Debug.Log(str);
     }
 
-    public void AdvanceDay()
+    public void AdvanceWeek()
     {
-        gameData.dailyFood = new DailyFoodItem[2];
-        for (int i = 0; i < 2; i++)
+        gameData.weeklyFood = new WeeklyFoodItem[4];
+        for (int i = 0; i < 4; i++)
         {
-            gameData.dailyFood[i] = new DailyFoodItem();
+            gameData.weeklyFood[i] = new WeeklyFoodItem();
             var randType = foodData.FoodTypes[random.Next(foodData.FoodTypes.Length)];
 
-            gameData.dailyFood[i].foodItem = randType.items[random.Next(randType.items.Length)];
-            gameData.dailyFood[i].minPurchase = random.Next(100, 500);
-            gameData.dailyFood[i].maxPurchase = random.Next(gameData.dailyFood[i].minPurchase, 700);
+            gameData.weeklyFood[i].foodItem = randType.items[random.Next(randType.items.Length)];
+            gameData.weeklyFood[i].minPurchase = random.Next(100, 500);
+            gameData.weeklyFood[i].maxPurchase = random.Next(gameData.weeklyFood[i].minPurchase, 700);
+        }
+
+        gameData.weeklyContracts = new Contract[10];
+        for (int i = 0; i < 10; i++)
+        {
+            gameData.weeklyContracts[i] = new Contract();
+            gameData.weeklyContracts[i].people = random.Next(3, 20);
+            gameData.weeklyContracts[i].weeks = random.Next(1, 10);
+            gameData.weeklyContracts[i].payment = random.Next(3,6) * gameData.weeklyContracts[i].people * gameData.weeklyContracts[i].weeks * 7;
         }
     }
 
-    public DailyFoodItem[] GetDailyFoodItems()
+    public WeeklyFoodItem[] GetWeeklyFoodItems()
     {
-        return gameData.dailyFood;
+        return gameData.weeklyFood;
+    }
+
+    public Contract[] GetWeeklyContracts()
+    {
+        return gameData.weeklyContracts;
     }
 }

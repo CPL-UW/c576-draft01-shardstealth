@@ -11,10 +11,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Game.unity
     guid: 73f7eb832339528438cbaff1ea70bbb1
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
   - enabled: 1
     path: Assets/Scenes/Purchasing.unity
     guid: 9bc1b842aba35514e9c157fea3c48f8d
+  - enabled: 1
+    path: Assets/Scenes/Contracts.unity
+    guid: 59a26dc44b79f184cacd3ff3bd451150
   m_configObjects: {}
