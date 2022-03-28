@@ -1,0 +1,117 @@
+{
+  "FoodTypes": [
+    {
+      "name": "vegetables",
+      "recommended": {
+        "unit": "cup",
+        "women": [
+          2.5,
+          3
+        ],
+        "men": [
+          3,
+          4
+        ]
+      },
+      "items": [
+        {
+          "name": "broccoli",
+          "price": 1.29,
+          "units": "lb",
+          "nutritionPerUnit": 6
+        },
+        {
+          "name": "green pepper",
+          "price": 0.9,
+          "units": "whole",
+          "nutritionPerUnit": 1
+        }
+      ]
+    },
+    {
+      "name": "fruit",
+      "recommended": {
+        "unit": "cup",
+        "women": [
+          1.5,
+          2
+        ],
+        "men": [
+          2,
+          2.5
+        ]
+      },
+      "items": [
+        {
+          "name": "banana",
+          "price": 0.25,
+          "units": "whole",
+          "nutritionPerUnit": 1
+        },
+        {
+          "name": "strawberry",
+          "price": 2.48,
+          "units": "lb",
+          "nutritionPerUnit": 3
+        }
+      ]
+    },
+    {
+      "name": "grain",
+      "recommended": {
+        "unit": "oz",
+        "women": [
+          6,
+          8
+        ],
+        "men": [
+          8,
+          10
+        ]
+      },
+      "items": [
+        {
+          "name": "bread",
+          "price": 2,
+          "units": "loaf",
+          "nutritionPerUnit": 20
+        },
+        {
+          "name": "oatmeal",
+          "price": 3,
+          "units": "oz",
+          "nutritionPerUnit": 0.71,
+          "unitsPerPurchase": 42
+        }
+      ]
+    },
+    {
+      "name": "protein",
+      "recommended": {
+        "unit": "oz",
+        "women": [
+          5,
+          6.5
+        ],
+        "men": [
+          6.5,
+          7
+        ]
+      },
+      "items": [
+        {
+          "name": "chicken breast",
+          "price": 3.38,
+          "units": "lb",
+          "nutritionPerUnit": 16
+        },
+        {
+          "name": "honey ham",
+          "price": 6.50,
+          "units": "lb",
+          "nutritionPerUnit": 16
+        }
+      ]
+    }
+  ]
+}
