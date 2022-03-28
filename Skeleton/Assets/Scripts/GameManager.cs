@@ -4,13 +4,13 @@ using System;
 using UnityEngine;
 
 [Serializable]
-public class FoodData
+public struct FoodData
 {
     public FoodType[] FoodTypes;
 }
 
 [Serializable]
-public class FoodType
+public struct FoodType
 {
     public string name;
     public RecommendedDietInfo recommended;
@@ -18,7 +18,7 @@ public class FoodType
 }
 
 [Serializable]
-public class FoodItem
+public struct FoodItem
 {
     public string name;
     public float price;
@@ -27,22 +27,28 @@ public class FoodItem
 }
 
 [Serializable]
-public class RecommendedDietInfo
+public struct RecommendedDietInfo
 {
     public string unit;
     public int[] women;
     public int[] men;
 }
 
-public class DailyFoodItem
+public struct DailyFoodItem
 {
-    FoodItem foodItem;
-    int minPurchase;
-    int maxPurchase;
+    public FoodItem foodItem;
+    public int minPurchase;
+    public int maxPurchase;
 }
 
 public class GameManager : MonoBehaviour
 {
+    [Serializable]
+    struct GameData
+    {
+        public float money;
+        public DailyFoodItem[] dailyFood;
+    }
 
     public static GameManager instance;
     public static GameManager get()
@@ -50,19 +56,27 @@ public class GameManager : MonoBehaviour
         return instance;
     }
     public TextAsset foodDataJson;
+    GameData gameData;
     FoodData foodData;
+    
+    System.Random random;
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
-        instance = this;
-        foodData = UnityEngine.JsonUtility.FromJson<FoodData>(foodDataJson.text);
-        Debug.Log(foodData.FoodTypes[0].items.Length);
-    }
+        if (instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        instance = this;
+        DontDestroyOnLoad(gameObject);
+
+        foodData = UnityEngine.JsonUtility.FromJson<FoodData>(foodDataJson.text);
+        gameData = new GameData();
+        random = new System.Random();
+        AdvanceDay();
+        Debug.Log(foodData.FoodTypes[0].items.Length);
     }
 
     public void OnStoreClick(string str)
@@ -70,8 +84,22 @@ public class GameManager : MonoBehaviour
         Debug.Log(str);
     }
 
-    //public DailyFoodItem[] GetDailyFoodItems()
-    //{
+    public void AdvanceDay()
+    {
+        gameData.dailyFood = new DailyFoodItem[2];
+        for (int i = 0; i < 2; i++)
+        {
+            gameData.dailyFood[i] = new DailyFoodItem();
+            var randType = foodData.FoodTypes[random.Next(foodData.FoodTypes.Length)];
 
-    //}
+            gameData.dailyFood[i].foodItem = randType.items[random.Next(randType.items.Length)];
+            gameData.dailyFood[i].minPurchase = random.Next(100, 500);
+            gameData.dailyFood[i].maxPurchase = random.Next(gameData.dailyFood[i].minPurchase, 700);
+        }
+    }
+
+    public DailyFoodItem[] GetDailyFoodItems()
+    {
+        return gameData.dailyFood;
+    }
 }
