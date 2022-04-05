@@ -17,7 +17,7 @@ public class ContractAquisition : MonoBehaviour
             GameObject thing = Instantiate(template) as GameObject;
             thing.SetActive(true);
             thing.transform.SetParent(template.transform.parent, false);
-            thing.GetComponent<ContractOption>().setStartingData(contract.people, contract.weeks, contract.payment);
+            thing.GetComponent<ContractOption>().setStartingData(contract);
         }
     }
 }

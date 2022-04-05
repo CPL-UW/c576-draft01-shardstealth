@@ -10,17 +10,23 @@ public class ContractOption : MonoBehaviour
     public TextMeshProUGUI people;
     public TextMeshProUGUI weeks;
     public TextMeshProUGUI pay;
+    public Button aquireButton;
+    private Contract curContract;
     // Start is called before the first frame update
     void Start()
     {
-        
+        aquireButton.onClick.AddListener(() => { 
+            GameManager.get().AquireContract(curContract);
+            gameObject.SetActive(false);
+        });
     }
 
-    public void setStartingData(int peopleCount, int weeksCount, int payCount)
+    public void setStartingData(Contract contract)
     {
-        people.text += peopleCount.ToString();
-        weeks.text += weeksCount.ToString();
-        pay.text += payCount.ToString();
+        curContract = contract;
+        people.text += contract.people.ToString();
+        weeks.text += contract.weeks.ToString();
+        pay.text += contract.payment.ToString();
     }
 
     // Update is called once per frame

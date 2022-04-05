@@ -41,6 +41,14 @@ public struct WeeklyFoodItem
     public int maxPurchase;
 }
 
+[Serializable]
+public struct OwnedFoodItem
+{
+    public FoodItem foodItem;
+    public int unitsLeft;
+}
+
+[Serializable]
 public struct Contract
 {
     public int people;
@@ -48,23 +56,25 @@ public struct Contract
     public int payment;
 }
 
+[Serializable]
+public struct GameData
+{
+    public float money;
+    public List<OwnedFoodItem> OwnedFood;
+    public List<Contract> OwnedContracts;
+    public WeeklyFoodItem[] weeklyFood;
+    public Contract[] weeklyContracts;
+}
+
 public class GameManager : MonoBehaviour
 {
-    [Serializable]
-    struct GameData
-    {
-        public float money;
-        public WeeklyFoodItem[] weeklyFood;
-        public Contract[] weeklyContracts;
-    }
-
     public static GameManager instance;
     public static GameManager get()
     {
         return instance;
     }
     public TextAsset foodDataJson;
-    GameData gameData;
+    public GameData gameData;
     FoodData foodData;
     
     System.Random random;
@@ -82,9 +92,11 @@ public class GameManager : MonoBehaviour
 
         foodData = UnityEngine.JsonUtility.FromJson<FoodData>(foodDataJson.text);
         gameData = new GameData();
+        gameData.OwnedFood = new List<OwnedFoodItem>();
+        gameData.OwnedContracts = new List<Contract>();
+        gameData.money = 3000;
         random = new System.Random();
         AdvanceWeek();
-        Debug.Log(foodData.FoodTypes[0].items.Length);
     }
 
     public void OnStoreClick(string str)
@@ -123,5 +135,21 @@ public class GameManager : MonoBehaviour
     public Contract[] GetWeeklyContracts()
     {
         return gameData.weeklyContracts;
+    }
+
+    public void PurchaseGoods(List<OwnedFoodItem> foodItems, float price)
+    {
+        //TODO Bug of not removing items from weekly
+        gameData.OwnedFood.AddRange(foodItems);
+        gameData.money -= price;
+        Hud.get().getUpdatedGameState();
+    }
+
+    public void AquireContract(Contract contract)
+    {
+        //TODO Bug of not removing contract from weekly
+        gameData.OwnedContracts.Add(contract);
+        gameData.money += contract.payment;
+        Hud.get().getUpdatedGameState();
     }
 }

@@ -6,35 +6,28 @@ using TMPro;
 
 public class FoodItemPurchase : MonoBehaviour
 {
-    public TextMeshProUGUI foodName;
-    public TextMeshProUGUI foodQuantity;
-    public TextMeshProUGUI purchaseQuantityText;
-    //public TextMeshProUGUI pricePerItem;
+    public TextMeshProUGUI foodNameTxt;
+    public TextMeshProUGUI maxPurchaseTxt;
+    public TextMeshProUGUI minPurchaseTxt;
+    public TextMeshProUGUI curAmountTxt;
+    public TextMeshProUGUI priceTxt;
+    public Toggle inCartToggle;
     public Slider slider;
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public WeeklyFoodItem currentFood;
 
-    public void setStartingData(string name, int minValue, int maxValue, float price)
+    public void setStartingData(WeeklyFoodItem weeklyFood)
     {
-        foodName.text += name;
-        foodQuantity.text += maxValue.ToString();
-        //pricePerItem.text += pricePerItem.ToString();
-        slider.minValue = minValue;
-        slider.maxValue = maxValue;
-        purchaseQuantityText.text = minValue.ToString();
+        currentFood = weeklyFood;
+        foodNameTxt.text += weeklyFood.foodItem.name;
+        minPurchaseTxt.text = weeklyFood.minPurchase.ToString();
+        maxPurchaseTxt.text += weeklyFood.maxPurchase.ToString();
+        priceTxt.text += weeklyFood.foodItem.price.ToString();
+        slider.minValue = weeklyFood.minPurchase;
+        slider.maxValue = weeklyFood.maxPurchase;
     }
 
     public void setPurchaseQuantityText(float value)
     {
-        purchaseQuantityText.text = value.ToString();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        curAmountTxt.text = value.ToString();
     }
 }
