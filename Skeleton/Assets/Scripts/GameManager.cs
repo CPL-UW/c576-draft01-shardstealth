@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using UnityEngine;
+using System.Linq;
 
 [Serializable]
 public struct FoodData
@@ -24,6 +25,7 @@ public struct FoodItem
     public float price;
     public string units;
     public float nutritionPerUnit;
+    public int type;
 }
 
 [Serializable]
@@ -31,7 +33,7 @@ public struct RecommendedDietInfo
 {
     public string unit;
     public int[] women;
-    public int[] men;
+    public float men;
 }
 
 public struct WeeklyFoodItem
@@ -59,7 +61,9 @@ public struct Contract
 [Serializable]
 public struct GameData
 {
+    public int day;
     public float money;
+    public float rating;
     public List<OwnedFoodItem> OwnedFood;
     public List<Contract> OwnedContracts;
     public WeeklyFoodItem[] weeklyFood;
@@ -75,8 +79,10 @@ public class GameManager : MonoBehaviour
     }
     public TextAsset foodDataJson;
     public GameData gameData;
-    FoodData foodData;
-    
+    public FoodData foodData;
+    public float[] idealNutrients;
+
+
     System.Random random;
     // Start is called before the first frame update
     void Awake()
@@ -91,12 +97,31 @@ public class GameManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         foodData = UnityEngine.JsonUtility.FromJson<FoodData>(foodDataJson.text);
+        // PreProcess foodData by setting type int
+        for (int i = 0; i < foodData.FoodTypes.Length; i++)
+        {
+            for (int j = 0; j < foodData.FoodTypes[i].items.Length; j++)
+            {
+                foodData.FoodTypes[i].items[j].type = i;
+            }
+        }
+
+        idealNutrients = new float[foodData.FoodTypes.Length];
+        for (int i = 0; i < foodData.FoodTypes.Length; i++)
+        {
+            idealNutrients[i] = foodData.FoodTypes[i].recommended.men;
+        }
+
         gameData = new GameData();
         gameData.OwnedFood = new List<OwnedFoodItem>();
         gameData.OwnedContracts = new List<Contract>();
         gameData.money = 3000;
         random = new System.Random();
-        AdvanceWeek();
+    }
+
+    void Start()
+    {
+        AdvanceDay();
     }
 
     public void OnStoreClick(string str)
@@ -104,8 +129,9 @@ public class GameManager : MonoBehaviour
         Debug.Log(str);
     }
 
-    public void AdvanceWeek()
+    public void AdvanceDay(float[] curNutrients = null)
     {
+        gameData.day++;
         gameData.weeklyFood = new WeeklyFoodItem[4];
         for (int i = 0; i < 4; i++)
         {
@@ -125,6 +151,28 @@ public class GameManager : MonoBehaviour
             gameData.weeklyContracts[i].weeks = random.Next(1, 10);
             gameData.weeklyContracts[i].payment = random.Next(3,6) * gameData.weeklyContracts[i].people * gameData.weeklyContracts[i].weeks * 7;
         }
+
+        // Advance day by updating star rating and contracts
+        //TODO: Remove used food from inventory
+        if (curNutrients != null)
+        {
+            int totalMeals = gameData.OwnedContracts.Sum(x => x.people);
+            float starDelta = 4;
+            for (int i = 0; i < curNutrients.Length; i++)
+            {
+                starDelta -= System.Math.Abs(idealNutrients[i] - (curNutrients[i] / totalMeals));
+            }
+            gameData.rating += starDelta;
+            gameData.rating = System.Math.Max(gameData.rating, 0);
+            for (int i = 0; i < gameData.OwnedContracts.Count; i++)
+            {
+                var tempStruct = gameData.OwnedContracts[i];
+                tempStruct.weeks--;
+                gameData.OwnedContracts[i] = tempStruct;
+            }
+            gameData.OwnedContracts.RemoveAll(x => x.weeks == 0);
+        }
+        Hud.get().getUpdatedGameState();
     }
 
     public WeeklyFoodItem[] GetWeeklyFoodItems()

@@ -28,6 +28,7 @@ public class BulkPurchase : MonoBehaviour
             thing.GetComponent<FoodItemPurchase>().slider.onValueChanged.AddListener((_) => RecalculateCart());
             _purchaseableFood.Add(thing);
         }
+        RecalculateCart();
     }
 
     public void RecalculateCart()

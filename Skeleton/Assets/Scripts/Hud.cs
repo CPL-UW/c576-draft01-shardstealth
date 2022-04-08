@@ -7,6 +7,9 @@ public class Hud : MonoBehaviour
 {
     public TextMeshProUGUI moneyTxt;
     public TextMeshProUGUI contractsTxt;
+    public TextMeshProUGUI dayTxt;
+    public TextMeshProUGUI ratingTxt;
+
     public static Hud instance;
     public static Hud get()
     {
@@ -24,5 +27,7 @@ public class Hud : MonoBehaviour
         var gameData = GameManager.get().gameData;
         moneyTxt.text = "$" + gameData.money;
         contractsTxt.text = "Contracts: " + gameData.OwnedContracts.Count;
+        dayTxt.text = "Day: " + gameData.day;
+        ratingTxt.text = "Rating: " + System.Math.Round(gameData.rating, 2).ToString();
     }
 }

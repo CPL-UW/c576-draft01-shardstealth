@@ -17,4 +17,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Contracts.unity
     guid: 59a26dc44b79f184cacd3ff3bd451150
+  - enabled: 1
+    path: Assets/Scenes/CurrentStatus.unity
+    guid: 87a511f33854d1b4887d6b2e3fe9ceaf
   m_configObjects: {}
