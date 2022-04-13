@@ -115,7 +115,8 @@ public class GameManager : MonoBehaviour
         gameData = new GameData();
         gameData.OwnedFood = new List<OwnedFoodItem>();
         gameData.OwnedContracts = new List<Contract>();
-        gameData.money = 3000;
+        gameData.money = 30000;
+        gameData.rating = 5;
         random = new System.Random();
     }
 
@@ -131,9 +132,10 @@ public class GameManager : MonoBehaviour
 
     public void AdvanceDay(float[] curNutrients = null)
     {
+        Analytics.ReportNewDay("testUser", gameData);
         gameData.day++;
-        gameData.weeklyFood = new WeeklyFoodItem[4];
-        for (int i = 0; i < 4; i++)
+        gameData.weeklyFood = new WeeklyFoodItem[8];
+        for (int i = 0; i < 8; i++)
         {
             gameData.weeklyFood[i] = new WeeklyFoodItem();
             var randType = foodData.FoodTypes[random.Next(foodData.FoodTypes.Length)];
@@ -199,5 +201,10 @@ public class GameManager : MonoBehaviour
         gameData.OwnedContracts.Add(contract);
         gameData.money += contract.payment;
         Hud.get().getUpdatedGameState();
+    }
+
+    void OnApplicationQuit()
+    {
+        Analytics.Close();
     }
 }

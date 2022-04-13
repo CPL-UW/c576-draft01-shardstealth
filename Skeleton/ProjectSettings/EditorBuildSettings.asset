@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/CurrentStatus.unity
     guid: 87a511f33854d1b4887d6b2e3fe9ceaf
+  - enabled: 1
+    path: Assets/Scenes/OwnedContracts.unity
+    guid: e370e4bc401a4f04ea95333ec2ee03e0
   m_configObjects: {}
