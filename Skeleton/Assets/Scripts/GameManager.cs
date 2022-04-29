@@ -68,6 +68,8 @@ public struct GameData
     public List<Contract> OwnedContracts;
     public WeeklyFoodItem[] weeklyFood;
     public Contract[] weeklyContracts;
+    public float[] AINutrients;
+    public bool purchasedForDay;
 }
 
 public class GameManager : MonoBehaviour
@@ -118,6 +120,8 @@ public class GameManager : MonoBehaviour
         gameData.money = 30000;
         gameData.rating = 5;
         random = new System.Random();
+        gameData.AINutrients = new float[foodData.FoodTypes.Length];
+        gameData.purchasedForDay = false;
     }
 
     void Start()
@@ -134,6 +138,7 @@ public class GameManager : MonoBehaviour
     {
         Analytics.ReportNewDay("testUser", gameData);
         gameData.day++;
+        gameData.purchasedForDay = false;
         gameData.weeklyFood = new WeeklyFoodItem[8];
         for (int i = 0; i < 8; i++)
         {
@@ -156,7 +161,7 @@ public class GameManager : MonoBehaviour
 
         // Advance day by updating star rating and contracts
         //TODO: Remove used food from inventory
-        if (curNutrients != null)
+        if (curNutrients != null && gameData.OwnedContracts.Count() > 0)
         {
             int totalMeals = gameData.OwnedContracts.Sum(x => x.people);
             float starDelta = 4;

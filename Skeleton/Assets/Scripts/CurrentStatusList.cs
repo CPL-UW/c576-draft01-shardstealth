@@ -55,7 +55,8 @@ public class CurrentStatusList : MonoBehaviour
         int numberMeals = 1;
         if (perMealToggle.isOn)
         {
-            numberMeals = gm.gameData.OwnedContracts.Sum(x => x.people);
+            if (gm.gameData.OwnedContracts.Count() > 0)
+                numberMeals = gm.gameData.OwnedContracts.Sum(x => x.people);
         }
         string nutrientsString = "Nutrients:\n";
         for (int i = 0; i < 4; i++)
