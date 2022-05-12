@@ -13,6 +13,7 @@ public class BulkPurchase : MonoBehaviour
     private List<GameObject> _purchaseableFood;
     private float _cartPrice = 0;
     GameManager gm;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -20,8 +21,8 @@ public class BulkPurchase : MonoBehaviour
         purchaseButton.onClick.AddListener(() => PurchaseCartGoods());
         purchaseButton.interactable = !gm.gameData.purchasedForDay; // Disable buy button if users already purchased for day
         _purchaseableFood = new List<GameObject>();
-        var weekly = gm.GetWeeklyFoodItems();
-        foreach (var foodItem in weekly)
+        var daily = gm.GetDailyFoodItems();
+        foreach (var foodItem in daily)
         {
             GameObject thing = Instantiate(template) as GameObject;
             thing.SetActive(true);
@@ -47,26 +48,35 @@ public class BulkPurchase : MonoBehaviour
         cartPriceTxt.text = "Purchase Price: $" + _cartPrice;
     }
 
-    private void ExecutePurchaseAI()
+    private Dictionary<String, int> ExecutePurchaseAI()
     {
         int mealsCompletedByAI = 1000;
         int mealsPossibleToComplete = gm.gameData.OwnedContracts.Sum(x => x.people);
+        var itemsPurchasedByAI = new Dictionary<String, int>();
         // For each nutrient type
         for (int i = 0; i < 4; i++)
         {
             var nutrVal = gm.gameData.AINutrients[i];
             var nutrTarget =  mealsPossibleToComplete * gm.idealNutrients[i];
 
-            var sorted = gm.gameData.weeklyFood.Where(weekFood => weekFood.foodItem.type == i).OrderBy(weekFood => weekFood.foodItem.price).ToArray();
+            var sorted = gm.gameData.dailyFood.Where(dayFood => dayFood.foodItem.type == i).OrderBy(dayFood => dayFood.foodItem.price).ToArray();
 
             for (int j = 0; j < sorted.Length; j++)
             {
                 if (nutrTarget - nutrVal <= 0)
                     break;
+
                 var maxAqui = (nutrTarget - nutrVal) / sorted[j].foodItem.nutritionPerUnit;
-                var aquiAmount = Math.Max((int)Math.Ceiling(maxAqui), sorted[j].maxPurchase);
+                var aquiAmount = Math.Min((int)Math.Ceiling(maxAqui), sorted[j].maxPurchase);
                 nutrVal += aquiAmount * sorted[j].foodItem.nutritionPerUnit;
-                sorted[j].maxPurchase -= aquiAmount;
+
+                if (itemsPurchasedByAI.ContainsKey(sorted[j].foodItem.name))
+                {
+                    itemsPurchasedByAI[sorted[j].foodItem.name] += aquiAmount;
+                } else
+                {
+                    itemsPurchasedByAI.Add(sorted[j].foodItem.name, aquiAmount);
+                }
             }
             gm.gameData.AINutrients[i] = nutrVal;
 
@@ -78,11 +88,12 @@ public class BulkPurchase : MonoBehaviour
         {
             gm.gameData.AINutrients[i] -= mealsCompletedByAI * gm.idealNutrients[i];
         }
+        return itemsPurchasedByAI;
     }
 
     public void PurchaseCartGoods()
     {
-        ExecutePurchaseAI();
+        var itemsPurchasedByAI = ExecutePurchaseAI();
 
         var tempCart = _cartPrice;
         if (gm.gameData.money < tempCart)
@@ -98,21 +109,18 @@ public class BulkPurchase : MonoBehaviour
                 var owned = new OwnedFoodItem();
                 owned.foodItem = script.currentFood.foodItem;
                 int sliderVal = (int)script.slider.value;
-                owned.unitsLeft = Math.Min(sliderVal, script.currentFood.maxPurchase);
+                int aiPurchaseQuant = 0;
+                if (itemsPurchasedByAI.ContainsKey(script.currentFood.foodItem.name))
+                {
+                    aiPurchaseQuant = itemsPurchasedByAI[script.currentFood.foodItem.name];
+                }
+                owned.unitsLeft = Math.Min(sliderVal, script.currentFood.maxPurchase - aiPurchaseQuant);
 
                 // If the food ran out, split the remaining with the ai
                 if (owned.unitsLeft < sliderVal)
                     owned.unitsLeft += (sliderVal - owned.unitsLeft) / 2;
                 purchased.Add(owned);
 
-                script.slider.minValue = 0;
-                script.minPurchaseTxt.text = "Min Order: 0";
-                script.slider.value = 0;
-                script.slider.maxValue = Math.Max(0, script.currentFood.maxPurchase - owned.unitsLeft);
-                script.maxPurchaseTxt.text = "Max Order: " + owned.unitsLeft;
-
-                if (script.slider.maxValue == 0)
-                    gameObj.SetActive(false);
             }
         }
 

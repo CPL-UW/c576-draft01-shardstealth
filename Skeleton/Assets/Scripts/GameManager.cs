@@ -4,6 +4,7 @@ using System;
 using UnityEngine;
 using System.Linq;
 
+// A bunch of types used to interpret json or used elsewhere for data transfer purposes
 [Serializable]
 public struct FoodData
 {
@@ -36,7 +37,7 @@ public struct RecommendedDietInfo
     public float men;
 }
 
-public struct WeeklyFoodItem
+public struct DailyFoodItem
 {
     public FoodItem foodItem;
     public int minPurchase;
@@ -44,7 +45,7 @@ public struct WeeklyFoodItem
 }
 
 [Serializable]
-public struct OwnedFoodItem
+public class OwnedFoodItem
 {
     public FoodItem foodItem;
     public int unitsLeft;
@@ -54,10 +55,13 @@ public struct OwnedFoodItem
 public struct Contract
 {
     public int people;
-    public int weeks;
+    public int days;
     public int payment;
+    public int id;
+    public bool enabled;
 }
 
+// Holds the only state of the program
 [Serializable]
 public struct GameData
 {
@@ -66,8 +70,8 @@ public struct GameData
     public float rating;
     public List<OwnedFoodItem> OwnedFood;
     public List<Contract> OwnedContracts;
-    public WeeklyFoodItem[] weeklyFood;
-    public Contract[] weeklyContracts;
+    public DailyFoodItem[] dailyFood;
+    public Contract[] dailyContracts;
     public float[] AINutrients;
     public bool purchasedForDay;
 }
@@ -84,11 +88,11 @@ public class GameManager : MonoBehaviour
     public FoodData foodData;
     public float[] idealNutrients;
 
-
     System.Random random;
-    // Start is called before the first frame update
+ 
     void Awake()
     {
+        // Maintain one instance of the gamemanager
         if (instance != null)
         {
             Destroy(gameObject);
@@ -100,6 +104,7 @@ public class GameManager : MonoBehaviour
 
         foodData = UnityEngine.JsonUtility.FromJson<FoodData>(foodDataJson.text);
         // PreProcess foodData by setting type int
+        // In future should be an enum
         for (int i = 0; i < foodData.FoodTypes.Length; i++)
         {
             for (int j = 0; j < foodData.FoodTypes[i].items.Length; j++)
@@ -117,7 +122,7 @@ public class GameManager : MonoBehaviour
         gameData = new GameData();
         gameData.OwnedFood = new List<OwnedFoodItem>();
         gameData.OwnedContracts = new List<Contract>();
-        gameData.money = 30000;
+        gameData.money = 50;
         gameData.rating = 5;
         random = new System.Random();
         gameData.AINutrients = new float[foodData.FoodTypes.Length];
@@ -129,38 +134,38 @@ public class GameManager : MonoBehaviour
         AdvanceDay();
     }
 
-    public void OnStoreClick(string str)
-    {
-        Debug.Log(str);
-    }
-
     public void AdvanceDay(float[] curNutrients = null)
     {
         Analytics.ReportNewDay("testUser", gameData);
         gameData.day++;
         gameData.purchasedForDay = false;
-        gameData.weeklyFood = new WeeklyFoodItem[8];
-        for (int i = 0; i < 8; i++)
+        int rating = (int)gameData.rating;
+        int numDailyFoodItems = (int)(gameData.rating / 2);
+        gameData.dailyFood = new DailyFoodItem[numDailyFoodItems];
+        for (int i = 0; i < numDailyFoodItems; i++)
         {
-            gameData.weeklyFood[i] = new WeeklyFoodItem();
+            gameData.dailyFood[i] = new DailyFoodItem();
             var randType = foodData.FoodTypes[random.Next(foodData.FoodTypes.Length)];
 
-            gameData.weeklyFood[i].foodItem = randType.items[random.Next(randType.items.Length)];
-            gameData.weeklyFood[i].minPurchase = random.Next(100, 500);
-            gameData.weeklyFood[i].maxPurchase = random.Next(gameData.weeklyFood[i].minPurchase, 700);
+            gameData.dailyFood[i].foodItem = randType.items[random.Next(randType.items.Length)];
+            gameData.dailyFood[i].minPurchase = random.Next(1, Math.Max(rating,1));
+            gameData.dailyFood[i].maxPurchase = random.Next(gameData.dailyFood[i].minPurchase, (rating + 2) * 2);
         }
 
-        gameData.weeklyContracts = new Contract[10];
-        for (int i = 0; i < 10; i++)
+        gameData.dailyContracts = new Contract[10];
+        int numdailyContracts = Math.Max((int)(gameData.rating / 5), 1);
+        for (int i = 0; i < numdailyContracts; i++)
         {
-            gameData.weeklyContracts[i] = new Contract();
-            gameData.weeklyContracts[i].people = random.Next(3, 20);
-            gameData.weeklyContracts[i].weeks = random.Next(1, 10);
-            gameData.weeklyContracts[i].payment = random.Next(3,6) * gameData.weeklyContracts[i].people * gameData.weeklyContracts[i].weeks * 7;
+            gameData.dailyContracts[i] = new Contract();
+            gameData.dailyContracts[i].people = random.Next(3, Math.Max((int)(gameData.rating / 2), 3));
+            gameData.dailyContracts[i].days = random.Next(2, Math.Max((int)(gameData.rating) * 7, 2));
+            gameData.dailyContracts[i].payment = random.Next(3,6) * gameData.dailyContracts[i].people * gameData.dailyContracts[i].days;
+            gameData.dailyContracts[i].id = i;
+            gameData.dailyContracts[i].enabled = true;
         }
 
         // Advance day by updating star rating and contracts
-        //TODO: Remove used food from inventory
+        // Food Removal is processed by CurrentStatusList
         if (curNutrients != null && gameData.OwnedContracts.Count() > 0)
         {
             int totalMeals = gameData.OwnedContracts.Sum(x => x.people);
@@ -169,32 +174,31 @@ public class GameManager : MonoBehaviour
             {
                 starDelta -= System.Math.Abs(idealNutrients[i] - (curNutrients[i] / totalMeals));
             }
-            gameData.rating += starDelta;
+            gameData.rating += starDelta * (totalMeals/3);
             gameData.rating = System.Math.Max(gameData.rating, 0);
             for (int i = 0; i < gameData.OwnedContracts.Count; i++)
             {
                 var tempStruct = gameData.OwnedContracts[i];
-                tempStruct.weeks--;
+                tempStruct.days--;
                 gameData.OwnedContracts[i] = tempStruct;
             }
-            gameData.OwnedContracts.RemoveAll(x => x.weeks == 0);
+            gameData.OwnedContracts.RemoveAll(x => x.days == 0);
         }
         Hud.get().getUpdatedGameState();
     }
 
-    public WeeklyFoodItem[] GetWeeklyFoodItems()
+    public DailyFoodItem[] GetDailyFoodItems()
     {
-        return gameData.weeklyFood;
+        return gameData.dailyFood;
     }
 
-    public Contract[] GetWeeklyContracts()
+    public Contract[] GetDailyContracts()
     {
-        return gameData.weeklyContracts;
+        return gameData.dailyContracts;
     }
 
     public void PurchaseGoods(List<OwnedFoodItem> foodItems, float price)
     {
-        //TODO Bug of not removing items from weekly
         gameData.OwnedFood.AddRange(foodItems);
         gameData.money -= price;
         Hud.get().getUpdatedGameState();
@@ -202,9 +206,9 @@ public class GameManager : MonoBehaviour
 
     public void AquireContract(Contract contract)
     {
-        //TODO Bug of not removing contract from weekly
         gameData.OwnedContracts.Add(contract);
         gameData.money += contract.payment;
+        gameData.dailyContracts[contract.id].enabled = false;
         Hud.get().getUpdatedGameState();
     }
 

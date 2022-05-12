@@ -13,17 +13,17 @@ public class FoodItemPurchase : MonoBehaviour
     public TextMeshProUGUI priceTxt;
     public Toggle inCartToggle;
     public Slider slider;
-    public WeeklyFoodItem currentFood;
+    public DailyFoodItem currentFood;
 
-    public void setStartingData(WeeklyFoodItem weeklyFood)
+    public void setStartingData(DailyFoodItem dailyFood)
     {
-        currentFood = weeklyFood;
-        foodNameTxt.text += weeklyFood.foodItem.name;
-        minPurchaseTxt.text = weeklyFood.minPurchase.ToString();
-        maxPurchaseTxt.text += weeklyFood.maxPurchase.ToString();
-        priceTxt.text += weeklyFood.foodItem.price.ToString();
-        slider.minValue = weeklyFood.minPurchase;
-        slider.maxValue = weeklyFood.maxPurchase;
+        currentFood = dailyFood;
+        foodNameTxt.text += dailyFood.foodItem.name;
+        minPurchaseTxt.text = dailyFood.minPurchase.ToString();
+        maxPurchaseTxt.text += dailyFood.maxPurchase.ToString();
+        priceTxt.text += dailyFood.foodItem.price.ToString();
+        slider.minValue = dailyFood.minPurchase;
+        slider.maxValue = dailyFood.maxPurchase;
     }
 
     public void setPurchaseQuantityText(float value)

@@ -8,14 +8,14 @@
           2.5,
           3
         ],
-        "men": 3.5
+        "men": 1.16
       },
       "items": [
         {
           "name": "broccoli",
-          "price": 1.29,
-          "units": "lb",
-          "nutritionPerUnit": 6
+          "price": 0.64,
+          "units": "half-lb",
+          "nutritionPerUnit": 3
         },
         {
           "name": "green pepper",
@@ -33,7 +33,7 @@
           1.5,
           2
         ],
-        "men": 2.25
+        "men": 0.75
       },
       "items": [
         {
@@ -58,21 +58,20 @@
           6,
           8
         ],
-        "men": 9
+        "men": 3
       },
       "items": [
         {
           "name": "bread",
-          "price": 2,
-          "units": "loaf",
-          "nutritionPerUnit": 20
+          "price": 1,
+          "units": "half-loaf",
+          "nutritionPerUnit": 10
         },
         {
           "name": "oatmeal",
-          "price": 3,
+          "price": 1,
           "units": "oz",
-          "nutritionPerUnit": 0.71,
-          "unitsPerPurchase": 42
+          "nutritionPerUnit": 10
         }
       ]
     },
@@ -84,20 +83,20 @@
           5,
           6.5
         ],
-        "men": 6.75
+        "men": 2.25
       },
       "items": [
         {
           "name": "chicken breast",
-          "price": 3.38,
-          "units": "lb",
-          "nutritionPerUnit": 16
+          "price": 1.69,
+          "units": "half-lb",
+          "nutritionPerUnit": 8
         },
         {
           "name": "honey ham",
-          "price": 6.50,
-          "units": "lb",
-          "nutritionPerUnit": 16
+          "price": 3.25,
+          "units": "half-lb",
+          "nutritionPerUnit": 8
         }
       ]
     }

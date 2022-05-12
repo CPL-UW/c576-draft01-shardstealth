@@ -16,13 +16,14 @@ public class CurrentStatusList : MonoBehaviour
     private List<GameObject> _listedOwnedFood;
     private float[] nutrients;
     GameManager gm;
+
     // Start is called before the first frame update
     void Start()
     {
         nutrients = new float[4];
         gm = GameManager.get();
         _listedOwnedFood = new List<GameObject>();
-        purchaseButton.onClick.AddListener(() => FinalizeWeek());
+        purchaseButton.onClick.AddListener(() => FinalizeDay());
         perMealToggle.onValueChanged.AddListener((_) => RecalculateNutrients());
         servingsTxt.text += gm.gameData.OwnedContracts.Sum(x => x.people).ToString();
 
@@ -42,7 +43,6 @@ public class CurrentStatusList : MonoBehaviour
 
     public void RecalculateNutrients()
     {
-        // TODO: Show Nutrients
         nutrients = new float[4];
 
         foreach (var gameObj in _listedOwnedFood)
@@ -68,43 +68,37 @@ public class CurrentStatusList : MonoBehaviour
         }
 
         nutrientTxt.text = nutrientsString;
-        //cartPriceTxt.text = "Purchase Price: $" + _cartPrice;
     }
 
-    public void FinalizeWeek()
+    // Removes food spent from gameData
+    public void SubtractCurrentlyUsedFood()
     {
-        // TODO: Advance Week
+        foreach (var gameObj in _listedOwnedFood)
+        {
+            var script = gameObj.GetComponent<OwnedFoodSelection>();
+            int amountToGetRidOf = (int)script.slider.value;
+            for (int i = 0; i < gm.gameData.OwnedFood.Count(); i++)
+            {
+                if (gm.gameData.OwnedFood[i].foodItem.name == script.currentFood.foodItem.name)
+                {
+                    if (amountToGetRidOf >= gm.gameData.OwnedFood[i].unitsLeft)
+                    {
+                        amountToGetRidOf -= gm.gameData.OwnedFood[i].unitsLeft;
+                        gm.gameData.OwnedFood.RemoveAt(i);
+                        i--;
+                    } else
+                    {
+                        gm.gameData.OwnedFood[i].unitsLeft -= amountToGetRidOf;
+                    }
+                }
+            }
+        }
+    }
+
+    public void FinalizeDay()
+    {
+        SubtractCurrentlyUsedFood();
         gm.AdvanceDay(nutrients);
         SceneManager.LoadScene(1);
-        //var tempCart = _cartPrice;
-        //if (gm.gameData.money < tempCart)
-        //    return;
-
-        //var purchased = new List<OwnedFoodItem>();
-
-        //foreach (var gameObj in _purchaseableFood)
-        //{
-        //    var script = gameObj.GetComponent<FoodItemPurchase>();
-        //    if (script.inCartToggle.isOn)
-        //    {
-        //        var owned = new OwnedFoodItem();
-        //        owned.foodItem = script.currentFood.foodItem;
-        //        owned.unitsLeft = (int)script.slider.value;
-        //        purchased.Add(owned);
-
-        //        script.slider.minValue = 0;
-        //        script.minPurchaseTxt.text = "Min Order: 0";
-        //        script.slider.value = 0;
-        //        script.slider.maxValue -= owned.unitsLeft;
-        //        script.maxPurchaseTxt.text = "Max Order: " + owned.unitsLeft;
-
-        //        if (script.slider.maxValue == 0)
-        //            gameObj.SetActive(false);
-        //    }
-        //}
-
-        //gm.PurchaseGoods(purchased, tempCart);
-
-        //RecalculateCart();
     }
 }

@@ -11,13 +11,16 @@ public class ContractAquisition : MonoBehaviour
     void Start()
     {
         gm = GameManager.get();
-        var weekly = gm.GetWeeklyContracts();
-        foreach (var contract in weekly)
+        var daily = gm.GetDailyContracts();
+        foreach (var contract in daily)
         {
-            GameObject thing = Instantiate(template) as GameObject;
-            thing.SetActive(true);
-            thing.transform.SetParent(template.transform.parent, false);
-            thing.GetComponent<ContractOption>().setStartingData(contract);
+            if (contract.enabled)
+            {
+                GameObject thing = Instantiate(template) as GameObject;
+                thing.SetActive(true);
+                thing.transform.SetParent(template.transform.parent, false);
+                thing.GetComponent<ContractOption>().setStartingData(contract);
+            }
         }
     }
 }

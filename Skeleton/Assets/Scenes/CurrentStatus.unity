@@ -545,9 +545,10 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'Optimal
 
-    Veg: 3.5cup Protein: 6.75oz
+    Veg: 1.16cup Protein: 2.25oz
 
-    Grain: 9oz     Fruit: 2.25cup'
+    Grain: 3oz      Fruit:
+    0.75cup'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -758,7 +759,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Servings to Serv: '
+  m_text: 'Servings to Serve: '
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

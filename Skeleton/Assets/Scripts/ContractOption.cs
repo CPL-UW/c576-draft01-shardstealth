@@ -25,8 +25,9 @@ public class ContractOption : MonoBehaviour
     {
         curContract = contract;
         people.text += contract.people.ToString();
-        weeks.text += contract.weeks.ToString();
+        weeks.text += contract.days.ToString();
         pay.text += contract.payment.ToString();
+        company.text += "Company" + contract.id.ToString();
     }
 
     // Update is called once per frame
